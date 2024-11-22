@@ -10,12 +10,12 @@ import (
 func (app *Config) routes() http.Handler {
 	mux := chi.NewRouter()
 
+	mux.Use(ValidateTokenMiddleware)
+
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	// Time API route
 	mux.Get("/api/webhook/time", app.GetTime)
 
-	// Placeholder route
 	mux.Post("/api/webhook/placeholder", app.PlaceholderWebhook)
 
 	return mux

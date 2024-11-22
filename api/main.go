@@ -10,7 +10,9 @@ const webPort = "8080"
 type Config struct{}
 
 func main() {
+
 	app := Config{}
+	GenerateTokenMiddleware()
 
 	log.Printf("Starting server on port %s\n", webPort)
 
