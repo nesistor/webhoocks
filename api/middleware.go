@@ -1,18 +1,35 @@
 package main
 
 import (
-	"fmt"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base32"
+	"log"
 	"net/http"
 	"strings"
 )
 
-var globalToken = ""
+// StaticToken przechowuje statyczny token
+var StaticToken string
 
-// GenerateTokenMiddleware generuje token globalny i wypisuje go w konsoli
-func GenerateTokenMiddleware() {
-	// Przykładowy statyczny token - możesz zmienić na bardziej dynamiczny mechanizm
-	globalToken = "super_secure_global_token_12345"
-	fmt.Printf("Generated Token: %s\n", globalToken)
+// GenerateStaticToken generuje jeden losowy token statyczny
+func GenerateStaticToken() string {
+	// Generate 16 random bytes
+	randomBytes := make([]byte, 16)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		log.Fatalf("Error generating token: %v", err)
+	}
+
+	// Encode the random bytes to a base32 string
+	token := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
+
+	// Opcjonalne: wyświetl hash tokena
+	hash := sha256.Sum256([]byte(token))
+	log.Printf("Generated Token: %s", token)
+	log.Printf("Token Hash: %x", hash)
+
+	return token
 }
 
 // ValidateTokenMiddleware sprawdza poprawność tokena w nagłówku Authorization
@@ -34,7 +51,7 @@ func ValidateTokenMiddleware(next http.Handler) http.Handler {
 
 		// Sprawdź, czy token jest zgodny z globalnym tokenem
 		token := parts[1]
-		if token != globalToken {
+		if token != StaticToken {
 			http.Error(w, "Unauthorized: invalid token", http.StatusUnauthorized)
 			return
 		}
@@ -43,3 +60,4 @@ func ValidateTokenMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+	

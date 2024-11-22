@@ -11,9 +11,10 @@ type Config struct{}
 
 func main() {
 
-	app := Config{}
-	GenerateTokenMiddleware()
+	StaticToken = GenerateStaticToken()
+	log.Printf("Static Token: %s", StaticToken)
 
+	app := Config{}
 	log.Printf("Starting server on port %s\n", webPort)
 
 	srv := &http.Server{
